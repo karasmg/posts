@@ -2,7 +2,13 @@
 
 class Model_Posts extends Model
 {
-	
+
+	public function add_post(){
+
+	}
+
+
+
 	public function get_data()
 	{	
 		

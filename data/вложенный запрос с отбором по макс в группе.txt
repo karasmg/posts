@@ -1,0 +1,203 @@
+
+Обновление таблицы самой в себя (in не работает)
+UPDATE `post` as p
+	inner join
+		(SELECT p_id FROM `post` WHERE `p_parent_id` is null) as ff on ff.p_id = p.p_parent_id
+SET `p_level` = 1, p_root = p_parent_id
+
+UPDATE `post` AS p INNER JOIN (
+SELECT p_id
+FROM `post`
+WHERE `p_level` =22
+) AS ff ON ff.p_id = p.p_parent_id
+SET p_level =23
+
+Отчет по менеджерам и заявкам
+SELECT u_id, u_fio, z.cnt
+FROM `users` as u
+LEFT JOIN
+(SELECT manager, count(*) as cnt
+FROM `zayavka`
+WHERE `manager` IS NOT NULL
+AND `manager` != '0000'
+AND state in (3,5,6)
+AND dateStart>= '2016-12-01' and dateStart < '2017-01-01'
+GROUP BY `manager`) as z on manager = u_id
+WHERE `user_type`='cashier'
+AND z.cnt is not null
+ORDER BY u_id
+
+
+Отбор заявок по менеджерам коротких анкет
+SELECT z.id, summ, srok, m.fio, calc_type, dateStart, 
+CASE state 
+WHEN 4 THEN 'отменена' 
+WHEN 5 THEN 'активна'
+WHEN 6 THEN 'успешно завершена'
+END as status
+FROM zayavka as z
+left join
+(SELECT id, fio FROM shop_managers) as m on m.id=sm_id
+WHERE `sm_id` is not null
+HAVING dateStart>= '2016-12-01' and dateStart < '2017-01-01'
+
+
+Отбор заявок по менеджерам коротких анкет
+SELECT z.id, summ, srok, m.fio, calc_type, dateStart, state
+FROM zayavka as z
+left join
+(SELECT id, fio FROM shop_managers) as m on m.id=sm_id
+WHERE `sm_id` is not null
+HAVING dateStart>= '2016-10-01' and dateStart < '2016-11-01'
+
+Объединение инвойсов и договоров версии 1 в одну выборку дохода и прихода
+SELECT d.d_id as id, iid as inn, id as zid, z.state as state, -d.d_summ as summ, d.d_date_start as date, -d.d_summ as body, 0 as percent, z.calc_type
+	FROM zayavka as z
+	JOIN
+	(SELECT d_id, d_zid, d_iid, d_summ, d_date_start FROM dogovor where d_version = 1) as d ON d.d_zid = z.id
+where z.state in (5,6)
+UNION
+SELECT i.i_id as id, iid as inn, id as zid, z.state as state, i.i_summ as summ, i.i_pay_day as date, i.i_body as body, (i.i_summ - i.i_body) as percent, z.calc_type
+	FROM zayavka as z
+	JOIN
+	(SELECT d_id, d_zid, d_iid FROM dogovor) as d ON d.d_zid = z.id
+	JOIN
+	(SELECT i_id, i_summ, i_pay_day, i_body  FROM invoices WHERE i_summ > 0) as i ON i.i_id = d.d_iid
+where z.state in (5,6)
+having date is not null
+order by date
+
+Выбор по просрочке
+SELECT d_id, a.d_zid, d_version, d_date_start, d_term, (TO_DAYS('2016-10-01')-TO_DAYS(d_date_start)) as diff, d_summ FROM dogovor a 
+JOIN ( 
+    SELECT d_zid, max(d_version) as dv
+                        FROM dogovor
+    					GROUP BY d_zid
+     ) AS b ON a.d_zid = b.d_zid AND a.d_version = b.dv
+where d_date_start < '2016-10-01' and d_summ>0 and calc_type = "dayly"
+ORDER BY d_date_start Desc
+
+Сортировка с исключением по значению, JOIN для отбора большего из группы 
+SELECT s.id as sn_id, s.iid as sn_iid, surname, `name`, birth_date, tdate, state, zayavka_invoice_id, za.id, shop_name
+												FROM shop_anketa as s
+												JOIN
+													(SELECT * FROM zayavka JOIN
+														(SELECT max( id ) as zid FROM zayavka GROUP BY iid) as a on zid = zayavka.id
+													WHERE sm_id IS NOT NULL) as za ON s.iid = za.iid
+												LEFT JOIN
+													(SELECT zid, shop_name FROM zayavka_invoice) as zi ON zi.zid = za.id
+												ORDER BY state <> 0, tdate DESC
+
+
+SELECT d_id, d_zid, d_version, d_date_start, d_term, DATE_ADD(d_date_start, INTERVAL IF(d_term<2, d_term, d_term-2) DAY) as finishdate  FROM dogovor WHERE (TO_DAYS(now())-TO_DAYS(DATE_ADD(d_date_start, INTERVAL IF(d_term<2, d_term, d_term-2) DAY)))<100
+
+
+SELECT d_id, a.d_zid, d_version FROM dogovor a 
+JOIN ( 
+    SELECT d_zid, max(d_version) as dv
+                        FROM dogovor
+    					GROUP BY d_zid
+     )AS b ON a.d_zid = b.d_zid AND a.d_version = b.dv
+
+	 
+SELECT d_id, a.d_zid, d_aid, d_version, d_date_start, d_term, FROM_DAYS(TO_DAYS(d_date_start)+d_term-2) as finishdate  FROM dogovor a 
+JOIN ( 
+    SELECT d_zid, max(d_version) as dv
+                        FROM dogovor
+    					GROUP BY d_zid
+     ) AS b ON a.d_zid = b.d_zid AND a.d_version = b.dv
+WHERE TO_DAYS("2015-08-24")>(TO_DAYS(d_date_start)+d_term-2)
+
+SELECT d_id, a.d_zid, d_aid, FROM_DAYS(TO_DAYS(d_date_start)+d_term) as finishdate, anketa.contact_email, anketa.contact_phone_mobile  FROM anketa, dogovor a
+JOIN ( 
+    SELECT d_zid, max(d_version) as dv
+                        FROM dogovor
+    					GROUP BY d_zid
+     ) AS b ON a.d_zid = b.d_zid AND a.d_version = b.dv
+WHERE TO_DAYS("2015-08-24")>(TO_DAYS(d_date_start)+d_term-2) and d_aid=iid
+
+
+SELECT dog_id, send_date, (UNIX_TIMESTAMP()-UNIX_TIMESTAMP(send_date)) as seconds FROM reminder_log WHERE (UNIX_TIMESTAMP()-UNIX_TIMESTAMP(send_date))<24*60*60
+SELECT dog_id FROM reminder_log WHERE (UNIX_TIMESTAMP()-UNIX_TIMESTAMP(send_date))<24*60*60 group by dog_id
+
+
+SELECT d_id, a.d_zid, d_aid, FROM_DAYS(TO_DAYS(d_date_start)+d_term) as finishdate, anketa.contact_email, anketa.contact_phone_mobile  FROM anketa, dogovor a
+JOIN ( 
+    SELECT d_zid, max(d_version) as dv
+                        FROM dogovor
+    					GROUP BY d_zid
+     ) AS b ON a.d_zid = b.d_zid AND a.d_version = b.dv
+WHERE TO_DAYS("2015-08-29")>(TO_DAYS(d_date_start)+d_term-2) and d_aid=iid and d_id NOT IN (SELECT dog_id FROM reminder_log WHERE (UNIX_TIMESTAMP()-UNIX_TIMESTAMP(send_date))<24*60*60 group by dog_id)
+
+
+Окончательный запрос
+Для dayly и annuitet:
+SELECT a.*, dogNumb, CASE a.calc_type WHEN 'dayly' THEN FROM_DAYS(TO_DAYS(a.d_date_start)+a.d_term) WHEN 'annuitet' THEN DATE_ADD(a.d_date_start, INTERVAL 1 MONTH) END as finishdate, anketa.contact_email, anketa.contact_phone_mobile  FROM anketa, zayavka, dogovor a
+JOIN ( 
+    SELECT d_zid, max(d_version) as dv
+                        FROM dogovor
+    					GROUP BY d_zid
+     ) AS b ON a.d_zid = b.d_zid AND a.d_version = b.dv
+WHERE TO_DAYS(NOW())>CASE a.calc_type WHEN 'dayly' THEN (TO_DAYS(a.d_date_start)+a.d_term-2) WHEN 'annuitet' THEN (TO_DAYS(DATE_ADD(a.d_date_start, INTERVAL 1 MONTH))-2) END and d_aid=anketa.iid and zayavka.id = a.d_zid and d_id NOT IN (SELECT dog_id FROM reminder_log WHERE (UNIX_TIMESTAMP()-UNIX_TIMESTAMP(send_date))<24*60*60 group by dog_id)
+
+Окончательный запрос
+Для dayly и annuitet:
+SELECT a.*, dogNumb, CASE a.calc_type WHEN 'dayly' THEN FROM_DAYS(TO_DAYS(a.d_date_start)+a.d_term) WHEN 'annuitet' THEN DATE_ADD(a.d_date_start, INTERVAL 1 MONTH) END as finishdate, anketa.contact_email, anketa.contact_phone_mobile  FROM anketa, zayavka, dogovor a
+JOIN ( 
+    SELECT d_zid, max(d_version) as dv
+                        FROM dogovor
+    					GROUP BY d_zid
+     ) AS b ON a.d_zid = b.d_zid AND a.d_version = b.dv
+WHERE TO_DAYS(NOW())>CASE a.calc_type WHEN 'dayly' THEN (TO_DAYS(a.d_date_start)+a.d_term-2) WHEN 'annuitet' THEN (TO_DAYS(DATE_ADD(a.d_date_start, INTERVAL 1 MONTH))-2) END and d_aid=anketa.iid and zayavka.id = a.d_zid and d_id NOT IN (SELECT dog_id FROM reminder_log WHERE (UNIX_TIMESTAMP()-UNIX_TIMESTAMP(send_date))<24*60*60 group by dog_id)
+
+
+
+
+Подсчет количества реквестов по типам и методу отсылки за 10 дней
+SELECT typerequest, SUM( IF( ws =0, 1, 0 ) ) ws0, SUM( IF( ws =1, 1, 0 ) ) ws1
+FROM requests
+WHERE response_date > DATE_SUB( NOW( ) , INTERVAL 1 YEAR ) 
+GROUP BY typerequest
+ORDER BY ws0 DESC
+
+Подсчет количества реквестов по типам и методу отсылки за 1 час
+SELECT typerequest, SUM( IF( ws =0, 1, 0 ) ) ws0, SUM( IF( ws =1, 1, 0 ) ) ws1
+FROM requests
+WHERE response_date > DATE_SUB( NOW( ) , INTERVAL 1 HOUR ) 
+GROUP BY typerequest
+ORDER BY ws0 DESC
+
+Подсчет количества реквестов по типам и методу отсылки за 2 мес архива, кроме последних 10 дней
+SELECT typerequest, SUM( IF( ws =0, 1, 0 ) ) ws0, SUM( IF( ws =1, 1, 0 ) ) ws1
+FROM requests_arch
+WHERE response_date > DATE_SUB( NOW( ) , INTERVAL 1 YEAR ) 
+GROUP BY typerequest
+ORDER BY ws0 DESC
+
+статистика за последний час без Paid sync и blocking (они не идут через вебсервис)
+все остальные должны идти через вебсервис
+SELECT typerequest, SUM( IF( ws =0, 1, 0 ) ) ws0, SUM( IF( ws =1, 1, 0 ) ) ws1
+FROM requests
+WHERE response_date > DATE_SUB( NOW( ) , INTERVAL 1 HOUR ) AND typerequest NOT IN('paid', 'sync', 'blocking')
+GROUP BY typerequest
+ORDER BY ws0 DESC
+
+запрос с LEFT JOIN позволяет при отсутствующих подчиненных записях выводить основную запись с NULL на месте отсутствующих полей
+SELECT ca_id, ca_model_id, ca_active, ca_verify, ca_reserved, ca_price, cm.cm_active, cc.cc_id, cc.cc_active FROM catalog_articules ca
+left join  catalog_models cm on cm_id=ca_model_id
+	left join catalog_categs cc on cc.cc_id=cm.cm_ccid
+WHERE ca_articul='Р1-000020710'
+
+Отбор последних версий договоров за период времени
+SELECT a.d_id, a.d_zid, a.d_version, a.d_lo, a.d_date_start, a.d_term, a.d_summ, a.d_percentstage, a.d_penystage, a.d_boffer, a.calc_type, a.firstMinPay, i.i_pay_day FROM dogovor a
+JOIN ( 
+    SELECT d_zid, max(d_version) as dv
+                        FROM dogovor
+    					GROUP BY d_zid
+     ) AS b ON a.d_zid = b.d_zid AND a.d_version = b.dv
+LEFT JOIN (
+	SELECT i_id, i_pay_day
+	FROM invoices
+) AS i ON i_id=a.d_iid
+WHERE a.d_date_start>='2016-05-01' and a.d_date_start<='2016-06-01'
+ORDER BY a.d_date_start  ASC
