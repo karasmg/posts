@@ -2,19 +2,29 @@
 
 class Model
 {
-	
-	/*
-		Модель обычно включает методы выборки данных, это могут быть:
-			> методы нативных библиотек pgsql или mysql;
-			> методы библиотек, реализующих абстракицю данных. Например, методы библиотеки PEAR MDB2;
-			> методы ORM;
-			> методы для работы с NoSQL;
-			> и др.
-	*/
 
-	// метод выборки данных
-	public function get_data()
-	{
-		// todo
+	private $_db = false;
+	private $_sumReport = '';
+	private $_sumError = '';
+	private $_connectionString = 'mysql:host=localhost;dbname=posts';
+	private $_charset = 'utf8';
+	private $_username = 'root';
+	private $_password = '';
+
+	protected function db() {
+		if ( $this->_db )
+			return $this->_db;
+
+		try {
+			$link = new PDO ($this->_connectionString.';'.$this->charset, $this->_username, $this->_password);
+		} catch ( PDOException $e ) {
+			$this->_sumReport = "Не удалось соединиться : <br/>" . $e->getMessage () . "<br/>";
+			//$this->sendResult();
+			echo $this->_sumReport;
+			exit(0);
+		}
+
+		$this->_db = $link;
+		return $this->_db;
 	}
 }

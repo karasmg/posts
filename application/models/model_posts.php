@@ -3,29 +3,7 @@
 class Model_Posts extends Model
 {
 
-	private $_db = false;
-	private $_sumReport = '';
-	private $_sumError = '';
-	private $_connectionString = 'mysql:host=localhost;dbname=messages';
-	private $_charset = 'utf8';
-	private $_username = 'root';
-	private $_password = '';
 	public  $tree = "";
-
-	private function db() {
-		if ( $this->_db )
-			return $this->_db;
-
-		try {
-			$link = new PDO ($this->_connectionString.';'.$this->charset, $this->_username, $this->_password);
-		} catch ( PDOException $e ) {
-			$this->_sumReport = "Не удалось соединиться : <br/>" . $e->getMessage () . "<br/>";
-			$this->sendResult();
-		}
-
-		$this->_db = $link;
-		return $this->_db;
-	}
 
 	public function add_post(){
 

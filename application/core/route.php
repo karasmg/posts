@@ -13,8 +13,8 @@ class Route
 		// контроллер и действие по умолчанию
 		$controller_name = 'Main';
 		$action_name = 'index';
-		
-		$routes = explode('/', $_SERVER['REQUEST_URI']);
+
+		$routes = explode('/', $_SERVER['REDIRECT_URL']);
 
 		// получаем имя контроллера
 		if ( !empty($routes[1]) )
@@ -81,7 +81,7 @@ class Route
 	
 	}
 
-	function ErrorPage404()
+	static function ErrorPage404()
 	{
         $host = 'http://'.$_SERVER['HTTP_HOST'].'/';
         header('HTTP/1.1 404 Not Found');
