@@ -11,7 +11,17 @@ class Controller_Posts extends Controller
 	
 	function action_index()
 	{
-		$data = $this->model->get_data();		
-		$this->view->generate('posts_view.php', 'template_view.php', $data);
+		$data = $this->model->readMessages();
+		$this->view->generate('posts_view.php', 'template_view.php', [
+			'posts' => $data
+		]);
 	}
+
+	function action_read()
+	{
+		$data = $this->model->readMessages();
+
+		echo $data;
+	}
+
 }
