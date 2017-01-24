@@ -1,6 +1,7 @@
 <?php
 namespace Posts\Controllers;
 
+use Posts\Core\Controller;
 use Posts\Core\View;
 use Posts\Models\Model_User;
 

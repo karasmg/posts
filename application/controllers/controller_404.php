@@ -1,6 +1,8 @@
 <?php
 namespace Posts\Controllers;
 
+use Posts\Core\Controller;
+
 class Controller_404 extends Controller
 {
 	

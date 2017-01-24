@@ -1,13 +1,14 @@
 <?php
 namespace Posts\Core;
 
+use \PDO as PDO;
 class Model
 {
 
 	private $_db = false;
 	private $_sumReport = '';
 	private $_sumError = '';
-	private $_connectionString = 'mysql:host=localhost;dbname=me ssages';
+	private $_connectionString = 'mysql:host=localhost;dbname=messages';
 	private $_charset = 'utf8';
 	private $_username = 'root';
 	private $_password = '';

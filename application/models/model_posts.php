@@ -1,6 +1,10 @@
 <?php
 namespace Posts\Models;
 
+
+use Posts\Core\Model;
+use \PDO as PDO;
+
 class Model_Posts extends Model
 {
 

@@ -16,5 +16,5 @@ require_once '/../vendor/autoload.php';
 	> Backup
 	> и др.
 */
+\Posts\Core\Route::start();
 
-Route::start(); // запускаем маршрутизатор
