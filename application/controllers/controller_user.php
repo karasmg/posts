@@ -16,7 +16,7 @@ class Controller_User extends Controller
 
     function action_login()
     {
-        $fb = new Facebook\Facebook([
+        $fb = new \Facebook\Facebook([
             'app_id' => '1117093858416886',
             'app_secret' => 'd0b7bace2e128956dd75ebf64c0121dd',
             'default_graph_version' => 'v2.8',
@@ -51,10 +51,7 @@ class Controller_User extends Controller
             //echo "<img src=" . $result['cover']['source'] . ">";
 
         } else {
-            $loginUrl = $helper->getLoginUrl('https://posts.local/user/login', $permissions);
-            $this->view->generate('login_view.php', 'template_view.php', [
-                'loginUrl' => $loginUrl
-            ]);
+            return $helper->getLoginUrl('https://posts.local/user/login', $permissions);
         }
 
     }
