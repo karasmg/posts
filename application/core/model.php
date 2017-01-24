@@ -6,7 +6,7 @@ class Model
 	private $_db = false;
 	private $_sumReport = '';
 	private $_sumError = '';
-	private $_connectionString = 'mysql:host=localhost;dbname=posts';
+	private $_connectionString = 'mysql:host=localhost;dbname=me ssages';
 	private $_charset = 'utf8';
 	private $_username = 'root';
 	private $_password = '';
@@ -16,7 +16,7 @@ class Model
 			return $this->_db;
 
 		try {
-			$link = new PDO ($this->_connectionString.';'.$this->charset, $this->_username, $this->_password);
+			$link = new PDO ($this->_connectionString.';'.$this->_charset, $this->_username, $this->_password);
 		} catch ( PDOException $e ) {
 			$this->_sumReport = "Не удалось соединиться : <br/>" . $e->getMessage () . "<br/>";
 			//$this->sendResult();

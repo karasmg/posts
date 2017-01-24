@@ -10,6 +10,7 @@
 	<link rel="stylesheet" href="/css/angular-ui-tree.min.css">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 	<link rel="stylesheet" href="/css/app.css">
+
 </head>
 
 <body ng-app="demoApp" ng-controller="BasicExampleCtrl">
@@ -21,6 +22,30 @@
 		js.src = "//connect.facebook.net/ru_RU/sdk.js#xfbml=1&version=v2.8&appId=1117093858416886";
 		fjs.parentNode.insertBefore(js, fjs);
 	}(document, 'script', 'facebook-jssdk'));</script>
+<div class="navbar navbar-default navbar-static-top">
+	<div class="container">
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-ex-collapse">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			<a class="navbar-brand" href="#">Сообщения</a>
+		</div>
+		<div class="collapse navbar-collapse" id="navbar-ex-collapse">
+			<ul class="nav navbar-nav navbar-right">
+				<li class="active">
+					<a href="#">Главная</a>
+				</li>
+				<li>
+					<a href="#">Сообщения</a>
+				</li>
+			</ul>
+		</div>
+	</div>
+</div>
+
 <?php include 'application/views/'.$content_view; ?>
 <script src="/js/angular.min.js"></script>
 <script src="/js/angular-route.min.js"></script>
