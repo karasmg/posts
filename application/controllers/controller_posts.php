@@ -1,4 +1,8 @@
 <?php
+namespace Posts\Controllers;
+
+use Posts\Core\View;
+use Posts\Models\Model_Posts;
 
 class Controller_Posts extends Controller
 {

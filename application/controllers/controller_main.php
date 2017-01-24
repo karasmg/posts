@@ -1,4 +1,5 @@
 <?php
+namespace Posts\Controllers;
 
 class Controller_Main extends Controller
 {

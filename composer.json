@@ -1,4 +1,10 @@
 {
+    "name": "Posts",
+    "autoload": {
+        "psr-4": {
+            "Posts\\": "application/"
+        }
+    },
     "require": {
         "facebook/graph-sdk": "^5.4"
     }

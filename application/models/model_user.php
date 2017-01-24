@@ -1,4 +1,5 @@
 <?php
+namespace Posts\Models;
 
 class Model_User extends Model
 {

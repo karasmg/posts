@@ -1,4 +1,8 @@
 <?php
+namespace Posts\Controllers;
+
+use Posts\Core\View;
+use Posts\Models\Model_User;
 
 class Controller_User extends Controller
 {
