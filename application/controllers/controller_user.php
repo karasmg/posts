@@ -46,10 +46,8 @@ class Controller_User extends Controller
 
             $st = curl_exec($ch);
             $result = json_decode($st, TRUE);
-            echo "My name: " . $result['name'];
-            echo "Email: " . $result['email'];
-            //echo "<img src=" . $result['cover']['source'] . ">";
-
+            $_SESSION['email'] = $result['email'];
+            header( 'Location: https://posts.local/posts', true, 301 );
         } else {
             return $helper->getLoginUrl('https://posts.local/user/login', $permissions);
         }
