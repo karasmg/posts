@@ -14,7 +14,23 @@ class Model_Posts extends Model
 
 	}
 
-	public function readMessages(){
+	public function readMessages($parentId=0, $from=0, $to=10){
+		$sql = "
+			SELECT *
+			FROM `post`
+			LEFT JOIN (SELECT u_id, u_name FROM `user`) as u on p_uid = u_id
+			WHERE `p_parent_id`= ".(int)$parentId."
+			ORDER BY `p_id` DESC
+			LIMIT ".(int)$from." , ".(int)$to."
+		";
+		$sth = $this->db()->prepare($sql);
+		$sth->execute();
+		$rez = $sth->fetchAll(PDO::FETCH_ASSOC);
+		return $this->array_to_tree($rez);
+	}
+
+
+	public function readComments(){
 		$sql = "SELECT p_id, p_parent_id, p_text, p_date, u_name
 				FROM `post`
 				LEFT JOIN (SELECT u_id, u_name FROM `user`) as u on p_uid = u_id

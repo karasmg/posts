@@ -22,7 +22,8 @@ if( !isset($_SESSION['email']) ){
 		<li ng-repeat="node in node.nodes" ui-tree-node ng-include="'nodes_renderer.html'">
 			<input id="actionText" class="form-control" ng-show="showInput"/>
 			<div><a style="float: right;" href="#" ng-click="showInput" >Ответить</a>
-				<br style="clear: both"></div>
+				<br style="clear: both">
+			</div>
 		</li>
 	</ol>
 </script>
