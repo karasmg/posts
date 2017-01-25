@@ -33,9 +33,6 @@
         $scope.$broadcast('angular-ui-tree:expand-all');
       };
 
-
-
-
         $scope.addPost = function (post) {
             //angular.isDefined - функция, которая позволяет проверить наличие свойства объекта.
                 $scope.lastId++
@@ -51,5 +48,3 @@
     }]);
 
 }());
-
-

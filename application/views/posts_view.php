@@ -16,13 +16,7 @@ if( !isset($_SESSION['email']) ){
 			<span class="glyphicon"	ng-class="{'glyphicon-chevron-right': collapsed, 'glyphicon-chevron-down': !collapsed}">
 			</span>
 		</a>
-		{{'(' + node.p_date+ '): ' +node.p_text}}
-		<?php /*
-		<a class="pull-right btn btn-danger btn-xs" data-nodrag ng-click="remove(this)"><span
-					class="glyphicon glyphicon-remove"></span></a>
-		<a class="pull-right btn btn-primary btn-xs" data-nodrag ng-click="newSubItem(this)" style="margin-right: 8px;"><span
-					class="glyphicon glyphicon-plus"></span></a>
-		 */ ?>
+		{{'(' + node.p_date+ ') ' + node.u_name + ': ' +node.p_text}}
 	</div>
 	<ol ui-tree-nodes="" ng-model="node.nodes" ng-class="{hidden: collapsed}">
 		<li ng-repeat="node in node.nodes" ui-tree-node ng-include="'nodes_renderer.html'">

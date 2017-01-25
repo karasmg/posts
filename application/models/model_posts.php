@@ -15,7 +15,10 @@ class Model_Posts extends Model
 	}
 
 	public function readMessages(){
-		$sql = "SELECT * FROM `post` WHERE 1 order by p_id ASC, p_parent_id ASC ";
+		$sql = "SELECT p_id, p_parent_id, p_text, p_date, u_name
+				FROM `post`
+				LEFT JOIN (SELECT u_id, u_name FROM `user`) as u on p_uid = u_id
+				ORDER BY p_id ASC, p_parent_id ASC";
 		$sth = $this->db()->prepare($sql);
 		$sth->execute();
 		$rez = $sth->fetchAll(PDO::FETCH_ASSOC);
@@ -45,6 +48,7 @@ class Model_Posts extends Model
 			$this->tree .= "'p_parent_id': '" . $arr[$i]['p_parent_id'] . "',\n";
 			$this->tree .= "'p_text': '" . $arr[$i]['p_text'] . "',\n";
 			$this->tree .= "'p_date': '" . $arr[$i]['p_date'] . "',\n";
+			$this->tree .= "'u_name': '" . $arr[$i]['u_name'] . "',\n";
 			if (isset($data[$arr[$i]['p_id']])) {
 				$this->tree .= "'nodes': [";
 				$this->json_generate($data, $arr[$i]['p_id'], $level++);
@@ -53,6 +57,4 @@ class Model_Posts extends Model
 			$this->tree .= "},\n";
 		}
 	}
-
-
 }
