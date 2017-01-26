@@ -7,7 +7,16 @@ class Controller_Main extends Controller
 {
 
 	function action_index()
-	{	
-		$this->view->generate('main_view.php', 'template_view.php');
+	{
+		$posts = new Model_Posts();
+		$view = new View();
+		$data = $posts->readMessages();
+		$user = new Controller_User();
+		$url = $user->action_login();
+
+		$view->generate('posts_view.php', 'template_view.php', [
+				'posts' => $data,
+				'loginUrl' => $url,
+		]);
 	}
 }

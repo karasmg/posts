@@ -69,3 +69,23 @@ tr.angular-ui-tree-empty {
 .fbinput_button {
     display: inline-block;
 }
+
+.post {
+    margin-left: 15px;
+}
+
+.this-node{
+    background: lightcyan;
+}
+
+.comment-form{
+    display: none;
+}
+
+.comment-form.form-horizontal{
+    display: block;
+}
+
+.post .post{
+    display: none;
+}

@@ -10,8 +10,19 @@ class Model_Posts extends Model
 
 	public  $tree = "";
 
-	public function add_post(){
-
+	public function addPost(){
+		if(!isset($_SESSION['user_id']))
+			return false;
+		if ( isset ($_REQUEST['message']) ) {
+			$post = $_REQUEST['message'];
+			$sql = "
+				INSERT INTO `post`
+				(`p_parent_id`, `p_text`, `p_date`, `p_uid`)
+				VALUES (" . $post['p_parent_id'] .", " . $post['p_text'] .", " . date("Y-m-d H:i:s") . ", " . $_SESSION['user_id'] . ")
+		";
+			$sth = $this->db()->prepare($sql);
+			$sth->execute();
+		}
 	}
 
 	public function readMessages($parentId=0, $from=0, $to=10){

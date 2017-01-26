@@ -46,8 +46,14 @@ class Controller_User extends Controller
 
             $st = curl_exec($ch);
             $result = json_decode($st, TRUE);
+            $data = $this->model->getUser($result['email']);
+            if (empty($data)) {
+                $_SESSION['user_id'] = $this->model->addUser($result['name'], $result['email']);
+            } else {
+                $_SESSION['user_id'] = $data[0]['u_id'];
+            }
             $_SESSION['email'] = $result['email'];
-            header( 'Location: https://posts.local/posts', true, 301 );
+            header("Location: /posts", TRUE, 301);
         } else {
             return $helper->getLoginUrl('https://posts.local/user/login', $permissions);
         }
