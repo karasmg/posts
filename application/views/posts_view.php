@@ -23,33 +23,46 @@
 						url: '/posts/addpost',
 						data: post,
 						success: function (data) {
-							var response =  JSON.parse(data);
-							switch (response.code) {
-								case 0:
-									console.log(response.data);
-									break;
-								case 1:
-									alert(response.data);
-									location.reload();
-									break;
-								case 2:
-									var new_post = $('<div class="post">').appendTo(obj.closest('.post'));
-									new_post.loadTemplate("#template", {
-										post: obj.closest('.comment-form').find('.message').val()
-									});
-									new_post.find('.post_id').val(response.data);
-									new_post.show();
-									break;
-								default:
-									alert(response);
-							}
-							//post_id = data.post_id;
+							render_result(obj, data);
 						}
 					});
-
 				});
-
 			});
+	/*
+	*
+	* @obj -
+	* @data -
+	* @return -
+	 */
+	var render_result = function(obj, data) {//obj - объект jquery, не null, не undefined
+		try {
+			var response = JSON.parse(data);
+		} catch (e) {
+			alert('Сообщение не удалось отправить на сервер');
+			return;
+		}
+
+		if ($.inArray(response.code, [1, 2, 3]) ) {
+			console.log('код = '+response.code);
+			switch (response.code) {
+				case 0:
+					console.log(response.data);
+					break;
+				case 1:
+					alert(response.data);
+					//location.reload();
+					break;
+				case 2:
+					var new_post = $('<div class="post">').appendTo(obj.closest('.post'));
+					new_post.loadTemplate("#template", {
+						post: obj.closest('.comment-form').find('.message').val()
+					});
+					new_post.find('.post_id').val(response.data);
+					new_post.show();
+					break;
+			}
+		}
+	}
 </script>
 <script type="text/html" id="template">
 	<div class="this-node">
