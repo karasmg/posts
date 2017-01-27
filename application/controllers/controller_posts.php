@@ -32,32 +32,42 @@ class Controller_Posts extends Controller
 	{
 		$result = [
 			'code' => 0,
-			'data' => ''
+			'data' => 'Неизвестная ошибка'
 		];
 
-		if(!isset($_SESSION['user_id'])){
+		if( !isset($_SESSION['user_id']) ){
 			$result['data'] = 'Необходимо авторизоваться';
-			return false;
+			$result['code'] = 1;
+			$this->output($result);
 		}
 
 		if ( !isset ($_REQUEST['message']) || !isset($_REQUEST['post_id']) ) {
 			$result['data'] = 'Неверно переданы параметры';
-			$result['code'] = 1;
-			return false;
+			$result['code'] = 0;
+			$this->output($result);
 		}
 
 		$post = [
-			'message' => $_REQUEST['message'],
-			'post_id' => $_REQUEST['post_id'],
+			'p_text' => htmlspecialchars($_REQUEST['message'], ENT_QUOTES),
+			'p_parent_id' => (int)$_REQUEST['post_id'],
 		];
+		$posts = new Model_Posts();
+		$id = $posts->addPost($post);
 
-		$posts = new Model_Posts($post);
-		$posts->addPost();
-
-
+		if( empty($id) ){
+			$result['data'] = 'Не удалось сохранить сообщение';
+			$result['code'] = 1;
+			$this->output($result);
+		}
+		$this->output([
+				'code' => 2,
+				'data' => $id
+		]);
 	}
 
-
+	private function output($rezult){
+		echo json_encode($rezult);
+		exit(0);
 	}
 
 	function action_read()

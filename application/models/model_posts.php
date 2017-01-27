@@ -10,19 +10,16 @@ class Model_Posts extends Model
 
 	public  $tree = "";
 
-	public function addPost(){
-		if(!isset($_SESSION['user_id']))
-			return false;
-		if ( isset ($_REQUEST['message']) ) {
-			$post = $_REQUEST['message'];
+	public function addPost($post){
 			$sql = "
 				INSERT INTO `post`
 				(`p_parent_id`, `p_text`, `p_date`, `p_uid`)
-				VALUES (" . $post['p_parent_id'] .", " . $post['p_text'] .", " . date("Y-m-d H:i:s") . ", " . $_SESSION['user_id'] . ")
+				VALUES (" . $post['p_parent_id'] .", '" . $post['p_text'] ."', '" . date("Y-m-d H:i:s") . "', " . $_SESSION['user_id'] . ")
 		";
-			$sth = $this->db()->prepare($sql);
-			$sth->execute();
-		}
+		$rdb = $this->db();
+		$sth = $rdb->prepare($sql);
+		$sth->execute();
+		return $rdb->lastInsertId();
 	}
 
 	public function readMessages($parentId=0, $from=0, $to=10){
