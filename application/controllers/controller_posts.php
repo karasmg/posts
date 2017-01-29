@@ -16,14 +16,11 @@ class Controller_Posts extends Controller
 	
 	function action_index()
 	{
-		$posts = new Model_Posts();
 		$view = new View();
-		$data = $posts->readMessages();
 		$user = new Controller_User();
 		$url = $user->action_login();
 
 		$view->generate('posts_view.php', 'template_view.php', [
-			'posts' => $data,
 			'loginUrl' => $url,
 		]);
 	}
@@ -65,7 +62,32 @@ class Controller_Posts extends Controller
 		]);
 	}
 
-	private function output($rezult){
+	function action_readposts()
+	{
+		$result = [
+				'code' => 0,
+				'data' => 'Неизвестная ошибка'
+		];
+
+		if(!isset ($_REQUEST['p_parent_id'])){
+			$this->output([
+					'code' => 0,
+					'data' => 'Переданы не верные данные'
+			]);
+		}
+
+		$model = new Model_Posts();
+		$posts = $model->readPosts((int)$_REQUEST['p_parent_id']);
+
+
+		$this->output([
+				'code' => 2,
+				'data' => $posts
+		]);
+	}
+
+
+		private function output($rezult){
 		echo json_encode($rezult);
 		exit(0);
 	}

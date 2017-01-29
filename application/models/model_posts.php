@@ -22,7 +22,7 @@ class Model_Posts extends Model
 		return $rdb->lastInsertId();
 	}
 
-	public function readMessages($parentId=0, $from=0, $to=10){
+	public function readPosts($parentId=0, $from=0, $to=10){
 		$sql = "
 			SELECT *
 			FROM `post`
@@ -34,9 +34,8 @@ class Model_Posts extends Model
 		$sth = $this->db()->prepare($sql);
 		$sth->execute();
 		$rez = $sth->fetchAll(PDO::FETCH_ASSOC);
-		return $this->array_to_tree($rez);
+		return $this->array_to_tree($rez, $parentId);
 	}
-
 
 	public function readComments(){
 		$sql = "SELECT p_id, p_parent_id, p_text, p_date, u_name
@@ -49,36 +48,37 @@ class Model_Posts extends Model
 		return $this->array_to_tree($rez);
 	}
 
-	public function array_to_tree($array)
+	public function array_to_tree($array, $parent = 0)
 	{
 		$new_arr = [];
 		for ($i = 0, $c = count($array); $i < $c; $i++) {
 			$new_arr[$array[$i]['p_parent_id']][] = $array[$i];
 		}
-		$this->tree.="[";
-		$this->json_generate($new_arr);
-		$this->tree.="]";
+		$this->tree.='[';
+		$this->json_generate($new_arr, $parent);
+		$this->tree.=']';
 		return $this->tree;
 	}
 
 
 	public function json_generate($data, $parent = 0, $level = 0)
 	{
+		if(!isset($data[$parent]))
+			return false;
 		$arr = $data[$parent];
-
 		for ($i = 0; $i < count($arr); $i++) {
-			$this->tree .= "{\n";
-			$this->tree .= "'p_id': '" . $arr[$i]['p_id'] . "',\n";
-			$this->tree .= "'p_parent_id': '" . $arr[$i]['p_parent_id'] . "',\n";
-			$this->tree .= "'p_text': '" . $arr[$i]['p_text'] . "',\n";
-			$this->tree .= "'p_date': '" . $arr[$i]['p_date'] . "',\n";
-			$this->tree .= "'u_name': '" . $arr[$i]['u_name'] . "',\n";
+			$this->tree .= ($i==0) ? '{' : ' , {';
+			$this->tree .= '"p_id" : ' . $arr[$i]['p_id'] . ',';
+			$this->tree .= '"p_parent_id" : ' . $arr[$i]['p_parent_id'] . ',';
+			$this->tree .= '"p_text" : "' . $arr[$i]['p_text'] . '",';
+			$this->tree .= '"p_date" : "' . $arr[$i]['p_date'] .  '",';
+			$this->tree .= '"u_name" : "' . $arr[$i]['u_name'] .  '"';
 			if (isset($data[$arr[$i]['p_id']])) {
-				$this->tree .= "'nodes': [";
+				$this->tree .= '"nodes": [';
 				$this->json_generate($data, $arr[$i]['p_id'], $level++);
-				$this->tree .= "],";
+				$this->tree .= '],';
 			}
-			$this->tree .= "},\n";
+			$this->tree .= "}";
 		}
 	}
 }

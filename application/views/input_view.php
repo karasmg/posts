@@ -1,10 +1,7 @@
-<div class="section">
-    <div class="container">
-        <div class="row">
             <div class="col-md-12 post">
                 <p style="float: right"><?=$_SESSION['email']?></p>
                 <form class="comment-form form-horizontal" role="form">
-                    <input type="hidden" class="post_id" name="post_id">
+                    <input type="hidden" class="post_id" name="post_id" value="0">
                     <div class="form-group">
                         <div class="col-sm-2">
                             <label for="inputText" class="control-label">Текст сообщения</label>
@@ -20,6 +17,3 @@
                     </div>
                 </form>
             </div>
-        </div>
-    </div>
-</div>
