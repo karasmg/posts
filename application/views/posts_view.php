@@ -71,11 +71,19 @@
 							}
 
 							for(var i=0; i<posts.length; i++) {
-								var parent_post = $('input[value="'+posts[i]["p_parent_id"]+'"]').closest('.post');
+								var parent_post = $('input[value="'+parent_id+'"]').closest('.post');
 								if( parent_post.find('input[value="'+posts[i]["p_id"]+'"]').length > 0 ){
+									console.log('edit');
 									var new_post = $('input[value="'+posts[i]["p_id"]+'"]').closest('.post');
-								} else{
-									var new_post = $('<div class="post">').appendTo(parent_post);
+								} else {
+									if(parent_id == 0) {
+										console.log('before');
+										var new_post = $('<div class="post">').insertAfter(parent_post.find('.comment-form').first());
+									}
+									else {
+										console.log('after');
+										var new_post = $('<div class="post">').appendTo(parent_post);
+									}
 								}
 								new_post.loadTemplate("#template", {
 									post: posts[i]["p_text"]
