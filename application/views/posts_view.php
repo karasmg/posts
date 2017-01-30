@@ -30,13 +30,35 @@
 				$('body').on('click', '.comment-form .btn', function () {
 					var post = $(this).closest('.comment-form').serialize();
 					var obj = $(this);
+					var current_id = $(this).closest('.form').find('.post_id').val();
 					$.ajax({
 						type: 'POST',
 						cache: false,
 						url: '/posts/addpost',
 						data: post,
 						success: function (data) {
-							render_result(obj, data);
+							try {
+								var response = JSON.parse(data);
+							} catch (e) {
+								alert('Ошибка связи с сервером');
+								return;
+							}
+
+							if ($.inArray(response.code, [1, 2, 3]) ) {
+								console.log('код = '+response.code);
+								switch (response.code) {
+									case 0:
+										console.log(response.data);
+										break;
+									case 1:
+										alert(response.data);
+										location.reload();
+										break;
+									case 2:
+										load_posts(current_id);
+										break;
+								}
+							}
 						}
 					});
 				});
@@ -73,20 +95,17 @@
 							for(var i=0; i<posts.length; i++) {
 								var parent_post = $('input[value="'+parent_id+'"]').closest('.post');
 								if( parent_post.find('input[value="'+posts[i]["p_id"]+'"]').length > 0 ){
-									console.log('edit');
 									var new_post = $('input[value="'+posts[i]["p_id"]+'"]').closest('.post');
 								} else {
 									if(parent_id == 0) {
-										console.log('before');
 										var new_post = $('<div class="post">').insertAfter(parent_post.find('.comment-form').first());
 									}
 									else {
-										console.log('after');
 										var new_post = $('<div class="post">').appendTo(parent_post);
 									}
 								}
 								new_post.loadTemplate("#template", {
-									post: posts[i]["p_text"]
+									post: '('+posts[i]["p_date"]+') '+posts[i]["u_name"]+': '+posts[i]["p_text"]
 								});
 								new_post.find('.post_id').val(posts[i]["p_id"]);
 								new_post.show();
@@ -99,41 +118,7 @@
 		});
 	}
 
-	/*
-	*
-	* @obj -
-	* @data -
-	* @return -
-	*/
-	var render_result = function(obj, data) {//obj - объект jquery, не null, не undefined
-		try {
-			var response = JSON.parse(data);
-		} catch (e) {
-			alert('Сообщение не удалось отправить на сервер');
-			return;
-		}
 
-		if ($.inArray(response.code, [1, 2, 3]) ) {
-			console.log('код = '+response.code);
-			switch (response.code) {
-				case 0:
-					console.log(response.data);
-					break;
-				case 1:
-					alert(response.data);
-					location.reload();
-					break;
-				case 2:
-					var new_post = $('<div class="post">').appendTo(obj.closest('.post'));
-					new_post.loadTemplate("#template", {
-						post: obj.closest('.comment-form').find('.message').val()
-					});
-					new_post.find('.post_id').val(response.data);
-					new_post.show();
-					break;
-			}
-		}
-	}
 </script>
 <script type="text/html" id="template">
 	<div class="this-node">
